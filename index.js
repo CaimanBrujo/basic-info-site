@@ -1,36 +1,30 @@
-const http = require("http");
-const fs = require("fs");
+const express = require("express");
 const path = require("path");
 
-const server = http.createServer((req, res) => {
-  console.log(`Request for ${req.url}`);
+const app = express();
 
-  let filePath = "";
-
-  if (req.url === "/" || req.url === "/index") {
-    filePath = "index.html";
-  } else if (req.url === "/about") {
-    filePath = "about.html";
-  } else if (req.url === "/contact-me") {
-    filePath = "contact-me.html";
-  } else {
-    filePath = "404.html";
-  }
-
-  fs.readFile(path.join(__dirname, filePath), (err, content) => {
-    if (err) {
-      res.writeHead(500, { "Content-Type": "text/html" });
-      res.end("<h1>500 Server Error</h1>");
-    } else {
-      res.writeHead(filePath === "404.html" ? 404 : 200, {
-        "Content-Type": "text/html",
-      });
-      res.end(content);
-    }
-  });
+// Home page
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
-const PORT = 8080;
-server.listen(PORT, () => {
+// About page
+app.get("/about", (req, res) => {
+  res.sendFile(path.join(__dirname, "about.html"));
+});
+
+// Contact page
+app.get("/contact", (req, res) => {
+  res.sendFile(path.join(__dirname, "contact.html"));
+});
+
+// 404 page for all other routes
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, "404.html"));
+});
+
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
